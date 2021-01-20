@@ -24,7 +24,7 @@ var DB = {
             name: "GTA San Andreas",
             year: 2017,
             price: 65
-        }
+        },
     ]
 }
 

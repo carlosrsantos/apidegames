@@ -2,14 +2,30 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const connection = require('./database');
 
+//importa a model Game
+const Game = require('./model/Game');
 
+//cors - para liberar o acesso da API para outros domínios na WEB
 app.use(cors());
 
+//bodyparser - converte os dados da requisição
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-var DB = {
+
+
+//conexão com o banco de dados
+connection
+    .authenticate()
+    .then(()=>{
+
+    })
+    .catch((error)=>{
+        console.log(error);
+    });
+/* var DB = {
     games: [
         { 
             id: 1,
@@ -30,12 +46,15 @@ var DB = {
             price: 65
         }
     ]
-}
+} */
 
 //listar todos games
 app.get('/games',(req, res) => {
     res.statusCode = 200;
-    res.json(DB.games);
+    //res.json(DB.games);
+    Game.findAll().then( games => {
+        res.json(games);
+    });
 });
 
 //listar game por id
@@ -48,14 +67,18 @@ app.get('/game/:id',(req, res) => {
     }else{
 
         var id = parseInt(req.params.id);
-        var game = DB.games.find( g => g.id == id);
-        
-        if(game != undefined){
-            res.statusCode = 200;
-            res.json(game);
-        }else{
+       // var game = Game.find( g => g.id == id);
+        Game.findByPk(id).then(game => {        
+                if(game != undefined){
+                    res.statusCode = 200;   
+                    res.json(game)
+                }else{
+                    res.sendStatus(404);
+                }
+            }
+        ).catch(erro =>{
             res.sendStatus(404);
-        }
+        });
     }
 });
 
@@ -64,20 +87,27 @@ app.post("/game", (req, res)=>{
     
     var { title, year, price } = req.body;
 
-    DB.games.push({
+    /* DB.games.push({
         id: 58,
         title,
         year,
         price
-    });
+    }); */
 
-    res.sendStatus(200);
-
+    if(title != undefined){
+        Game.create({
+            title, year, price
+        }).then(()=>{
+            res.sendStatus(200);
+        });
+    }else{
+        res.sendStatus(400);
+    }
 });
 
 //deletar game
 app.delete("/game/:id",(req, res)=> {
-    if(isNaN(req.params.id)){
+   /*  if(isNaN(req.params.id)){
         res.sendStatus(400);
     }else{
         var id = parseInt(req.params.id);
@@ -89,6 +119,26 @@ app.delete("/game/:id",(req, res)=> {
             DB.games.splice(index, 1);
             res.sendStatus(200);
         }
+    } */
+     if(isNaN(req.params.id)){
+
+        res.sendStatus(400);
+    
+    }else{
+
+        var id = parseInt(req.params.id);
+       // var game = Game.find( g => g.id == id);
+        Game.findIndex(id).then(game => {        
+                if(game != undefined){
+                    res.statusCode = 200;   
+                    res.json(game)
+                }else{
+                    res.sendStatus(404);
+                }
+            }
+        ).catch(erro =>{
+            res.sendStatus(404);
+        });
     }
 });
 

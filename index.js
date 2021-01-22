@@ -83,16 +83,9 @@ app.get('/game/:id',(req, res) => {
 });
 
 //cadastrar game
-app.post("/game", (req, res)=>{
+app.post("/game",(req, res)=>{
     
     var { title, year, price } = req.body;
-
-    /* DB.games.push({
-        id: 58,
-        title,
-        year,
-        price
-    }); */
 
     if(title != undefined){
         Game.create({
@@ -107,19 +100,7 @@ app.post("/game", (req, res)=>{
 
 //deletar game
 app.delete("/game/:id",(req, res)=> {
-   /*  if(isNaN(req.params.id)){
-        res.sendStatus(400);
-    }else{
-        var id = parseInt(req.params.id);
-        var index = DB.games.findIndex(g => g.id == id);
-
-         if(index == -1){
-            res.sendStatus(404);
-        }else{
-            DB.games.splice(index, 1);
-            res.sendStatus(200);
-        }
-    } */
+   
      if(isNaN(req.params.id)){
 
         res.sendStatus(400);
@@ -127,11 +108,14 @@ app.delete("/game/:id",(req, res)=> {
     }else{
 
         var id = parseInt(req.params.id);
-       // var game = Game.find( g => g.id == id);
-        Game.findIndex(id).then(game => {        
+        Game.findByPk(id).then(game => {        
                 if(game != undefined){
-                    res.statusCode = 200;   
-                    res.json(game)
+                    Game.destroy({
+                        where:{
+                            id: id
+                        }
+                    });
+                    res.sendStatus(200);
                 }else{
                     res.sendStatus(404);
                 }
@@ -139,6 +123,7 @@ app.delete("/game/:id",(req, res)=> {
         ).catch(erro =>{
             res.sendStatus(404);
         });
+        
     }
 });
 
@@ -148,29 +133,33 @@ app.put("/game/:id", (req, res)=>{
         res.sendStatus(400);
     }else{
         var id = parseInt(req.params.id);
-        var game = DB.games.find( g => g.id == id);
-        
-        if(game != undefined){
+        //var game = DB.games.find( g => g.id == id);
+        Game.findByPk(id).then(game => {
+            if(game != undefined){
             
-            var {title, year, price} = req.body;
+                var {title, year, price} = req.body;
 
-            if(title != undefined){
-                game.title = title;
-            }
+                if((title != undefined) || (price != undefined)){
+                    Game.update({
+                        title, year, price
+                        },
+                        {
+                            where: {
+                                id
+                            }
+                        }
+                    );
+                }
 
-            if(year != undefined){
-                game.year = year;
-            }
+                res.sendStatus(200);
 
-            if(price != undefined){
-                game.price = price;
-            }
-
-            res.sendStatus(200);
-
-        }else{
+            }else{
             res.sendStatus(404);
         }
+        })
+        
+
+           
     }
 });
 

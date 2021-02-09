@@ -117,30 +117,31 @@ route.put("/game/:id", (req, res)=>{
 });
 
 //Autenticação de users
-api.post('/auth',(req, res)=>{
+route.post('/auth',(req, res)=>{
 
     var {email, password } = req.body;
 
-    if(email != undefined){
+    if(email){
 
-        var user = User.findOne({
-            where:{ email }
+        User.findOne({ where: { email }})
+        .then(user => {        
+                if(user.password == password){
+                    res.status(200);   
+                    res.json({token: "TOKEN inválido!"});
+                }else{
+                    res.status(401);
+                    res.json({err:"Credenciais inválidas!"});
+                }
+            })
+        .catch(err =>{
+            res.status(404);
+            res.json({err:"O e-mail enviado não existe na base de dados!"});
         });
-
-        if(user != undefined){
-
-            if(user.password == password){
-
-            }else{
-
-            }
-
-        }else{
-
-        }
+        
     }else{
-
-    }
+        res.status(400);
+        res.json({err: "O e-mail enviado é inválido!"});
+    }   
 
 });
 

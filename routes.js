@@ -24,6 +24,7 @@ function auth(req, res, next){
         jwt.verify(token, secret, (err, data)=>{
             if(err){
                 res.status(401);
+                res.json({err: "Token inválido!"})
             }else{
                 req.token = token;
                 req.loggedUser = { id: data.id, email: data.email };

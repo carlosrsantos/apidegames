@@ -21,3 +21,4 @@ const Game = connection.define('games', {
 
 module.exports = Game;
 
+ 

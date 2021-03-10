@@ -10,9 +10,24 @@ const secret = "$Unavaibled@System.000";
 
 //listar games
 route.get('/games',auth,(req, res) => {
+    
+    //HATEOAS
+    var HATEOAS = [
+        {
+            href: "http://localhost:3040/games",
+            method: "GET",
+            rel:"get_all_games"
+        },
+        {
+            href: "http://localhost:3040/auth",
+            method: "POST",
+            rel:"login"
+        }
+    ]
+
     res.statusCode = 200;
     Game.findAll().then( games => {
-        res.json(games);
+        res.json({ games , _links: HATEOAS });
     });
 });
 
